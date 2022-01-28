@@ -9,6 +9,7 @@
 **/.toolstarget
 **/.vs
 **/.vscode
+**/.venv
 **/*.*proj.user
 **/*.dbmdl
 **/*.jfm
@@ -22,5 +23,13 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+**/.env
+**/.aws
+**/.ssh
 README.md
-list.txt
+unt*
+__pycache__
+.gitignore
+config.py
+manga_urls.txt
+*.tar
