@@ -23,31 +23,39 @@ latest_releases_dates = []
 
 print("Fetching dates...")
 for manga in mangalist:
-    response = requests.get(manga)
+    print("Fetching "+manga)
+    response = requests.get(manga, allow_redirects=True)
     soup = BeautifulSoup(response.text, 'html.parser')
+    if soup.find(text="Informazione Pubblicitaria - "):
+        ### This is to bypass the video advert that sometimes appears when loading the url ###
+        session = requests.Session()
+        response = session.get(manga)
+        soup = BeautifulSoup(response.text, 'html.parser')
     titolo_italiano = soup.find('h1').getText()
+    print(titolo_italiano)
     stato_ita = soup.find(text="Stato in Italia")
     stato_ita_td = stato_ita.parent
     target_statoIt = stato_ita_td.find_next_sibling('dd').text
     titles_ita.append(titolo_italiano.strip())
     italy_statuses.append(target_statoIt.strip())
-    if target_statoIt.strip() == "in corso" and soup.find(text="Prossima uscita") is not None:
-        next_releases_text = soup.find('h3').getText()
-        next_releases.append(next_releases_text.strip())
+
+    if ((target_statoIt.strip() == "in corso") or (target_statoIt.strip() == "annunciato")) and soup.find(text="Prossima uscita") is not None:
+        prossima_uscita = soup.find('h3').getText()
+        next_releases.append(prossima_uscita.strip())
         next_release_link = soup.select_one("a[href*=edizione\/]")
         next_releases_dates.append(home_url+next_release_link.get('href'))
         latest_releases.append("")
         latest_releases_dates.append("N.D.")
     elif target_statoIt.strip() == "completato" and soup.find(text="Prossima uscita") is not None:
-        next_releases_text = soup.find('h3').getText()
-        next_releases.append(next_releases_text.strip())
+        prossima_uscita = soup.find('h3').getText()
+        next_releases.append(prossima_uscita.strip())
         next_release_link = soup.select_one("a[href*=edizione\/]")
         next_releases_dates.append(home_url+next_release_link.get('href'))
         latest_releases.append("")
         latest_releases_dates.append("N.D.")
     elif soup.find(text="Ultima uscita") is not None:
-        latest_releases_text = soup.find('h3').getText()
-        latest_releases.append("Ultima uscita: "+latest_releases_text.strip())
+        ultima_uscita = soup.find('h3').getText()
+        latest_releases.append("Ultima uscita: "+ultima_uscita.strip())
         next_release_link = soup.select_one("a[href*=edizione\/]")
         latest_releases_dates.append(home_url+next_release_link.get('href'))
         next_releases.append("")
